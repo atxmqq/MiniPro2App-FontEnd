@@ -1,8 +1,8 @@
 import 'dart:developer';
 import 'package:flutter/material.dart';
-import 'package:minipro2app/page/regis_rider.dart';
+import 'package:minipro2app/page/rider/regis_rider.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:minipro2app/page/regis_user.dart';
+import 'package:minipro2app/page/user/regis_user.dart';
 
 class Register extends StatefulWidget {
   const Register({super.key});

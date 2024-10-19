@@ -11,6 +11,17 @@ class Login extends StatefulWidget {
 }
 
 class _Login extends State<Login> {
+  final TextEditingController nameController = TextEditingController();
+  final TextEditingController passwordController = TextEditingController();
+
+  @override
+  void dispose() {
+    // ล้างข้อมูลเมื่อหน้าจอถูกปิด
+    nameController.dispose();
+    passwordController.dispose();
+    super.dispose();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -65,6 +76,7 @@ class _Login extends State<Login> {
                         height: 10), // ระยะห่างระหว่างข้อความและช่องกรอก
                     // ช่องกรอก Name
                     TextField(
+                      controller: nameController,
                       decoration: InputDecoration(
                         hintText: 'เช่น kkxpter@gmail.com',
                         hintStyle: const TextStyle(
@@ -91,6 +103,7 @@ class _Login extends State<Login> {
                         height: 10), // ระยะห่างระหว่างข้อความและช่องกรอก
                     // ช่องกรอก Password
                     TextField(
+                      controller: passwordController,
                       obscureText: true, // ซ่อนรหัสผ่าน
                       decoration: InputDecoration(
                         hintText: 'กรอก Password',
@@ -123,7 +136,15 @@ class _Login extends State<Login> {
                 elevation: 5, // เพิ่มเงานิดหน่อย
               ),
               onPressed: () {
-                log('login');
+                // ดึงข้อมูลจาก TextField
+                final name = nameController.text;
+                final password = passwordController.text;
+
+                log('Name: $name');
+                log('Password: $password');
+
+                // คุณสามารถนำค่าที่ดึงได้ไปตรวจสอบการล็อกอินที่ backend ตรงนี้
+                // เช่นส่ง request ไปยัง API เพื่อตรวจสอบชื่อผู้ใช้และรหัสผ่าน
               },
               child: Text(
                 'เข้าสู่ระบบ',
