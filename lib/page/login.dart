@@ -1,7 +1,13 @@
 import 'dart:developer';
 import 'package:flutter/material.dart';
-import 'package:minipro2app/page/register.dart';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
+import 'package:get_storage/get_storage.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:minipro2app/config/config.dart';
+import 'package:minipro2app/models/login_user_request.dart';
+import 'package:minipro2app/page/register.dart';
+import 'package:minipro2app/page/startlogin.dart'; // หน้า Register ของคุณ
 
 class Login extends StatefulWidget {
   const Login({super.key});
@@ -11,16 +17,9 @@ class Login extends StatefulWidget {
 }
 
 class _Login extends State<Login> {
-  final TextEditingController nameController = TextEditingController();
-  final TextEditingController passwordController = TextEditingController();
-
-  @override
-  void dispose() {
-    // ล้างข้อมูลเมื่อหน้าจอถูกปิด
-    nameController.dispose();
-    passwordController.dispose();
-    super.dispose();
-  }
+  TextEditingController phoneNoCt1 = TextEditingController();
+  TextEditingController passwordNoCt1 = TextEditingController();
+  GetStorage gs = GetStorage();
 
   @override
   Widget build(BuildContext context) {
@@ -32,14 +31,12 @@ class _Login extends State<Login> {
           mainAxisAlignment: MainAxisAlignment.start,
           children: [
             const SizedBox(height: 50), // ระยะห่างด้านบน
-            // รูปภาพ
             Image.asset(
-              'assets/images/m.png',
+              'assets/images/m.png', // ใส่ภาพที่ต้องการ
               width: 250,
               height: 250,
               fit: BoxFit.contain,
             ),
-            // ข้อความ "เข้าสู่ระบบ"
             Text(
               'เข้าสู่ระบบ',
               style: GoogleFonts.kanit(
@@ -49,48 +46,42 @@ class _Login extends State<Login> {
               ),
             ),
             const SizedBox(height: 20), // ระยะห่างระหว่างข้อความกับการ์ด
-
-            // การ์ดสำหรับฟอร์มกรอกข้อมูล
             Card(
               elevation: 5, // เพิ่มเงาให้การ์ด
-              margin: const EdgeInsets.symmetric(
-                  horizontal: 20), // ระยะห่างขอบการ์ด
+              margin: const EdgeInsets.symmetric(horizontal: 20),
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(15), // มุมโค้งของการ์ด
               ),
               child: Padding(
-                padding: const EdgeInsets.all(20.0), // ระยะห่างภายในการ์ด
+                padding: const EdgeInsets.all(20.0),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    // ข้อความ Name
                     Text(
-                      'Name',
+                      'Phone',
                       style: GoogleFonts.kanit(
                         color:
                             const Color.fromARGB(255, 12, 24, 68), // สีกรมเข้ม
                         fontSize: 18,
                       ),
                     ),
-                    const SizedBox(
-                        height: 10), // ระยะห่างระหว่างข้อความและช่องกรอก
-                    // ช่องกรอก Name
+                    const SizedBox(height: 10),
                     TextField(
-                      controller: nameController,
+                      controller: phoneNoCt1,
+                      onChanged: (value) {
+                        log('Phone number: $value'); // Log เมื่อมีการพิมพ์ในฟิลด์โทรศัพท์
+                      },
                       decoration: InputDecoration(
-                        hintText: 'เช่น kkxpter@gmail.com',
                         hintStyle: const TextStyle(
-                          color: Colors.grey, // ทำให้ข้อความเป็นสีเทาจาง ๆ
-                          fontSize: 16, // ขนาดตัวอักษร
+                          color: Colors.grey,
+                          fontSize: 16,
                         ),
                         border: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(10),
                         ),
                       ),
                     ),
-                    const SizedBox(
-                        height: 20), // ระยะห่างระหว่าง Name และ Password
-                    // ข้อความ Password
+                    const SizedBox(height: 20),
                     Text(
                       'Password',
                       style: GoogleFonts.kanit(
@@ -99,17 +90,17 @@ class _Login extends State<Login> {
                         fontSize: 18,
                       ),
                     ),
-                    const SizedBox(
-                        height: 10), // ระยะห่างระหว่างข้อความและช่องกรอก
-                    // ช่องกรอก Password
+                    const SizedBox(height: 10),
                     TextField(
-                      controller: passwordController,
-                      obscureText: true, // ซ่อนรหัสผ่าน
+                      controller: passwordNoCt1,
+                      obscureText: true,
+                      onChanged: (value) {
+                        log('Password: $value'); // Log เมื่อมีการพิมพ์ในฟิลด์รหัสผ่าน
+                      },
                       decoration: InputDecoration(
-                        hintText: 'กรอก Password',
                         hintStyle: const TextStyle(
-                          color: Colors.grey, // ทำให้ข้อความเป็นสีเทาจาง ๆ
-                          fontSize: 16, // ขนาดตัวอักษร
+                          color: Colors.grey,
+                          fontSize: 16,
                         ),
                         border: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(10),
@@ -120,51 +111,35 @@ class _Login extends State<Login> {
                 ),
               ),
             ),
-            const SizedBox(height: 20), // ระยะห่างระหว่างการ์ดและปุ่ม
-
-            // ปุ่ม "เข้าสู่ระบบ"
+            const SizedBox(height: 20),
             ElevatedButton(
               style: ElevatedButton.styleFrom(
-                backgroundColor:
-                    const Color.fromARGB(255, 12, 24, 68), // พื้นหลังสีกรมเข้ม
+                backgroundColor: const Color.fromARGB(255, 12, 24, 68),
                 padding:
                     const EdgeInsets.symmetric(horizontal: 100, vertical: 15),
                 shape: RoundedRectangleBorder(
-                  // ปรับมุมปุ่มให้โค้งเล็กน้อย
                   borderRadius: BorderRadius.circular(10),
                 ),
-                elevation: 5, // เพิ่มเงานิดหน่อย
+                elevation: 5,
               ),
-              onPressed: () {
-                // ดึงข้อมูลจาก TextField
-                final name = nameController.text;
-                final password = passwordController.text;
-
-                log('Name: $name');
-                log('Password: $password');
-
-                // คุณสามารถนำค่าที่ดึงได้ไปตรวจสอบการล็อกอินที่ backend ตรงนี้
-                // เช่นส่ง request ไปยัง API เพื่อตรวจสอบชื่อผู้ใช้และรหัสผ่าน
-              },
+              onPressed: loginuser,
               child: Text(
                 'เข้าสู่ระบบ',
                 style: GoogleFonts.kanit(
-                  color: Colors.white, // สีตัวอักษรเป็นสีขาว
+                  color: Colors.white,
                   fontSize: 18,
                   fontWeight: FontWeight.bold,
                 ),
               ),
             ),
-            const SizedBox(height: 20), // ระยะห่างระหว่างปุ่มกับข้อความด้านล่าง
-
-            // ข้อความ "คุณยังไม่มีบัญชี?"
+            const SizedBox(height: 20),
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 Text(
                   'คุณยังไม่มีบัญชี? ',
                   style: GoogleFonts.kanit(
-                    color: Colors.black54, // สีเทาอ่อน
+                    color: Colors.black54,
                     fontSize: 16,
                   ),
                 ),
@@ -172,15 +147,13 @@ class _Login extends State<Login> {
                   onTap: () {
                     Navigator.push(
                       context,
-                      MaterialPageRoute(
-                          builder: (context) =>
-                              const Register()), // นำทางไปหน้า Register
+                      MaterialPageRoute(builder: (context) => const Register()),
                     );
                   },
                   child: Text(
                     'สมัครสมาชิก',
                     style: GoogleFonts.kanit(
-                      color: const Color.fromARGB(255, 12, 24, 68), // สีกรมเข้ม
+                      color: const Color.fromARGB(255, 12, 24, 68),
                       fontSize: 16,
                       fontWeight: FontWeight.bold,
                     ),
@@ -192,5 +165,167 @@ class _Login extends State<Login> {
         ),
       ),
     );
+  }
+
+  void loginuser() async {
+    LoginUserRequest model = LoginUserRequest(
+      phone: phoneNoCt1.text,
+      password: passwordNoCt1.text,
+    );
+
+    // เช็คว่ามีการกรอกข้อมูลหรือไม่
+    if (model.phone.trim().isEmpty || model.password.trim().isEmpty) {
+      // แสดงป็อบอัพเตือนเมื่อไม่มีการกรอกข้อมูล
+      showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            title: Center(
+                child: Text(
+              'กรุณากรอกเบอร์โทรศัพท์และรหัสผ่าน',
+              style: TextStyle(fontWeight: FontWeight.bold, fontSize: 15),
+            )),
+            actions: <Widget>[
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  FilledButton(
+                    child: Text('ตกลง'),
+                    style: FilledButton.styleFrom(
+                        backgroundColor: Color.fromARGB(255, 72, 0, 0),
+                        foregroundColor:
+                            const Color.fromARGB(255, 255, 255, 255),
+                        textStyle: TextStyle(fontSize: 14),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(8.0),
+                        ),
+                        elevation: 5),
+                    onPressed: () {
+                      Navigator.of(context).pop();
+                    },
+                  ),
+                ],
+              ),
+            ],
+          );
+        },
+      );
+      return; // ออกจากฟังก์ชันถ้าไม่มีข้อมูล
+    }
+
+    var config = await Configuration.getConfig();
+    var url = config['apiEndpoint'];
+
+    try {
+      final response = await http.post(
+        Uri.parse("$url/user/login"),
+        headers: {"Content-Type": "application/json; charset=utf-8"},
+        body: jsonEncode(model.toJson()),
+      );
+
+      if (response.statusCode == 200) {
+        // การล็อกอินสำเร็จ
+        var responseData = jsonDecode(response.body); // เปลี่ยนตรงนี้
+        if (responseData['message'] == 'Login successful') {
+          gs.write(
+              'uid',
+              responseData['user']
+                  ['uid']); //ถ้าlogin ผ่านให้เก็บ username ไว้ในระบบ
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => StartLogin(),
+            ),
+          );
+          log('Login True');
+        }
+      } else if (response.statusCode == 400) {
+        // ข้อมูลไม่ครบถ้วน
+        var errorData = jsonDecode(response.body);
+        log('Error: ${errorData['error']}');
+      } else if (response.statusCode == 404) {
+        // ไม่พบผู้ใช้
+        var errorData = jsonDecode(response.body);
+        showDialog(
+          context: context,
+          builder: (BuildContext context) {
+            return AlertDialog(
+              title: Center(
+                  child: Text(
+                'ไม่พบผู้ใช้',
+                style: TextStyle(fontWeight: FontWeight.bold, fontSize: 15),
+              )),
+              actions: <Widget>[
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    FilledButton(
+                      child: Text('ตกลง'),
+                      style: FilledButton.styleFrom(
+                          backgroundColor: Color.fromARGB(255, 72, 0, 0),
+                          foregroundColor:
+                              const Color.fromARGB(255, 255, 255, 255),
+                          textStyle: TextStyle(fontSize: 14),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(8.0),
+                          ),
+                          elevation: 5),
+                      onPressed: () {
+                        Navigator.of(context).pop();
+                      },
+                    ),
+                  ],
+                ),
+              ],
+            );
+          },
+        );
+        log('Error: ${errorData['error']}');
+      } else if (response.statusCode == 401) {
+        // รหัสผ่านไม่ถูกต้อง
+        var errorData = jsonDecode(response.body);
+        // แสดงป็อบอัพเตือนเมื่อรหัสผ่านไม่ถูกต้อง
+        showDialog(
+          context: context,
+          builder: (BuildContext context) {
+            return AlertDialog(
+              title: Center(
+                  child: Text(
+                'รหัสผ่านไม่ถูกต้อง',
+                style: TextStyle(fontWeight: FontWeight.bold, fontSize: 15),
+              )),
+              actions: <Widget>[
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    FilledButton(
+                      child: Text('ตกลง'),
+                      style: FilledButton.styleFrom(
+                          backgroundColor: Color.fromARGB(255, 72, 0, 0),
+                          foregroundColor:
+                              const Color.fromARGB(255, 255, 255, 255),
+                          textStyle: TextStyle(fontSize: 14),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(8.0),
+                          ),
+                          elevation: 5),
+                      onPressed: () {
+                        Navigator.of(context).pop();
+                      },
+                    ),
+                  ],
+                ),
+              ],
+            );
+          },
+        );
+        log('Error: ${errorData['error']}');
+      } else {
+        // ข้อผิดพลาดอื่น ๆ
+        log('Unexpected error: ${response.statusCode}');
+      }
+    } catch (e) {
+      log('Error: $e');
+    }
   }
 }
