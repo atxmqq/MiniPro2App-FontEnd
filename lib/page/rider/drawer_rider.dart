@@ -1,11 +1,12 @@
+import 'dart:developer'; // สำหรับการใช้งาน log()
 import 'package:flutter/material.dart';
+import 'package:minipro2app/page/rider/main_rider.dart';
+import 'package:minipro2app/page/rider/profile_rider.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:minipro2app/page/user/main_user.dart';
-import 'package:minipro2app/page/user/profile_user.dart'; // นำเข้าหน้า profile_user.dart
 import 'package:minipro2app/page/login.dart'; // นำเข้าหน้า login.dart
 
-class DrawerWidget extends StatelessWidget {
-  const DrawerWidget({super.key});
+class DrawerWidgetRider extends StatelessWidget {
+  const DrawerWidgetRider({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -55,11 +56,10 @@ class DrawerWidget extends StatelessWidget {
                 ],
               ),
               onTap: () {
+                log('home rider');
                 Navigator.push(
                   context,
-                  MaterialPageRoute(
-                      builder: (context) =>
-                          const MainDrawerPage()), // นำทางไปหน้า MainDrawer
+                  MaterialPageRoute(builder: (context) => const MainRider()),
                 );
               },
             ),
@@ -81,11 +81,10 @@ class DrawerWidget extends StatelessWidget {
                 ],
               ),
               onTap: () {
+                log('profile rider');
                 Navigator.push(
                   context,
-                  MaterialPageRoute(
-                      builder: (context) =>
-                          const ProfileUser()), // นำทางไปหน้า ProfileUser
+                  MaterialPageRoute(builder: (context) => const ProfileRider()),
                 );
               },
             ),
@@ -107,10 +106,10 @@ class DrawerWidget extends StatelessWidget {
                 ],
               ),
               onTap: () {
+                log('Logging out and navigating to Login');
                 Navigator.push(
                   context,
-                  MaterialPageRoute(
-                      builder: (context) => const Login()), // นำทางไปหน้า Login
+                  MaterialPageRoute(builder: (context) => const Login()),
                 );
               },
             ),

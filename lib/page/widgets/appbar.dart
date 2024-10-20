@@ -23,7 +23,7 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
       actions: [
         IconButton(
           icon: const CircleAvatar(
-            backgroundImage: AssetImage('assets/images/cat.png'),
+            backgroundImage: AssetImage('assets/images/m.png'),
           ),
           onPressed: () {},
         ),
